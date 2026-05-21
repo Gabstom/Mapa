@@ -1,0 +1,12 @@
+{
+    "name": "Mapa Bydgoszcz",
+    "short_name": "Mapa",
+    "description": "Pełnoekranowa mapa Bydgoszczy.",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "fullscreen",
+    "orientation": "portrait",
+    "background_color": "#F4F1E8",
+    "theme_color": "#F4F1E8",
+    "categories": ["navigation", "maps"]
+}

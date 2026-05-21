@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Mapa Bydgoszcz">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#F4F1E8" id="themeColorMeta">
+    <title>Mapa Bydgoszcz</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link href="https://unpkg.com/maplibre-gl@3.x/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css?v=35">
+</head>
+<body>
+    <div id="limitAlert" class="hidden">Błąd mapy: Przekroczono darmowy limit MapTiler.</div>
+    
+    <div id="mainNavigationContainer">
+        <div id="searchSection">
+            <div id="searchContainer">
+                <div id="dropdown" class="hidden"></div>
+                <div class="input-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="searchBar" placeholder="Szukaj adresu" autocomplete="off" aria-label="Szukaj adresu">
+                    <button id="clearInputBtn" class="hidden" type="button" aria-label="Wyczyść wyszukiwanie">&times;</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="controlsSection" aria-label="Akcje mapy">
+            <button id="customGpsToggle" type="button" aria-label="Pokaż moją lokalizację" title="Moja lokalizacja">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+            </button>
+            <button id="themeToggle" type="button" aria-label="Przełącz motyw" title="Przełącz motyw"></button>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/maplibre-gl@3.x/dist/maplibre-gl.js"></script>
+    <script src="app.js?v=39"></script>
+</body>
+</html>

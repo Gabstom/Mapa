@@ -1,0 +1,439 @@
+/* ==========================================================================
+   BAZA I MAPA (pełny ekran iOS / PWA)
+   ========================================================================== */
+html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    height: -webkit-fill-available;
+    min-height: var(--app-height);
+    overflow: hidden;
+    background-color: #F4F1E8;
+}
+
+:root {
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --app-height: calc(100vh + var(--safe-bottom));
+    --surface: rgba(255, 255, 255, 0.42);
+    --surface-strong: rgba(255, 255, 255, 0.54);
+    --surface-border: rgba(255, 255, 255, 0.5);
+    --surface-inner-border: rgba(32, 33, 36, 0.08);
+    --surface-shadow: 0 18px 45px rgba(32, 33, 36, 0.2), 0 1px 5px rgba(255, 255, 255, 0.22) inset;
+    --surface-text: #202124;
+    --surface-muted: #5f666d;
+    --liquid-blur: blur(36px) saturate(1.95);
+}
+
+@supports (height: 100dvh) {
+    :root {
+        --app-height: calc(100dvh + var(--safe-bottom));
+    }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: var(--app-height);
+    min-height: var(--app-height);
+    position: fixed; 
+    top: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #F4F1E8;
+}
+
+#map {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#map .maplibregl-canvas-container,
+#map .maplibregl-canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Ukrywamy FABRYCZNE przyciski MapLibre (Zoom, standardowy GPS, logo 'i') */
+.maplibregl-ctrl-top-right,
+.maplibregl-ctrl-bottom-right {
+    display: none !important;
+}
+
+/* ==========================================================================
+   KOMPAKTOWA NAWIGACJA NA DOLE
+   ========================================================================== */
+#mainNavigationContainer {
+    position: fixed;
+    bottom: 16px;
+    bottom: calc(var(--safe-bottom) + 16px);
+    left: max(14px, 5%);
+    right: max(14px, 5%);
+    width: auto;
+    z-index: 10;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 8px;
+    color: var(--surface-text);
+}
+
+/* --- Sekcja Wyszukiwarki (Lewa strona) --- */
+#searchSection {
+    flex: 1;
+    min-width: 0;
+}
+
+#searchContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column; 
+}
+
+.input-wrapper {
+    position: relative;
+    width: 100%;
+    color: var(--surface-muted);
+}
+
+.input-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: 17px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.05) 34%, rgba(255, 255, 255, 0.18));
+    opacity: 0.28;
+    mix-blend-mode: screen;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 2;
+    filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.45));
+}
+
+#searchBar {
+    width: 100%;
+    min-height: 48px;
+    padding: 13px 42px 13px 44px;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    border-radius: 18px;
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
+    font-size: 16px;
+    line-height: 20px;
+    background: var(--surface);
+    color: var(--surface-text);
+    backdrop-filter: var(--liquid-blur);
+    -webkit-backdrop-filter: var(--liquid-blur);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.05));
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+#searchBar:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.58);
+    box-shadow: 0 0 0 1px rgba(0, 122, 255, 0.18), 0 18px 45px rgba(32, 33, 36, 0.2), 0 1px 5px rgba(255, 255, 255, 0.18) inset;
+    background: rgba(255, 255, 255, 0.48);
+}
+
+#clearInputBtn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    font-size: 24px;
+    color: var(--surface-muted);
+    cursor: pointer;
+    z-index: 3;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0 2px;
+}
+
+#clearInputBtn:hover {
+    color: var(--surface-text);
+    background: rgba(255, 255, 255, 0.34);
+}
+
+#clearInputBtn:focus-visible,
+#customGpsToggle:focus-visible,
+#themeToggle:focus-visible {
+    outline: 3px solid rgba(0, 122, 255, 0.28);
+    outline-offset: 2px;
+}
+
+#clearInputBtn.hidden {
+    display: none;
+}
+
+#dropdown {
+    margin-top: 0; 
+    margin-bottom: 8px; 
+    background: rgba(255, 255, 255, 0.62);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    box-shadow: 0 18px 42px rgba(32, 33, 36, 0.18);
+    backdrop-filter: blur(10px) saturate(0.9) brightness(1.03);
+    -webkit-backdrop-filter: blur(10px) saturate(0.9) brightness(1.03);
+    overflow: hidden;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+#dropdown.hidden {
+    display: none;
+}
+
+.dropdown-header {
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.34);
+    font-size: 12px;
+    color: #6f7378;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(32, 33, 36, 0.07);
+}
+
+.clear-btn {
+    color: #ff3b30;
+    cursor: pointer;
+    font-weight: bold;
+    border: none;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+}
+
+.dropdown-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(32, 33, 36, 0.065);
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.34);
+}
+
+.dropdown-item span.city {
+    color: #6f7378;
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+#limitAlert {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #FF3B30;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    width: 80%;
+    max-width: 300px;
+}
+
+#limitAlert.hidden {
+    display: none;
+}
+
+/* --- Sekcja Przycisków (Prawa strona) --- */
+#controlsSection {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex: 0 0 auto;
+    min-height: 48px;
+    overflow: hidden;
+    border: 1px solid var(--surface-border);
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: var(--surface-shadow);
+    backdrop-filter: var(--liquid-blur);
+    -webkit-backdrop-filter: var(--liquid-blur);
+    position: relative;
+}
+
+#controlsSection::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    pointer-events: none;
+    border-radius: 17px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.05) 38%, rgba(255, 255, 255, 0.18));
+    opacity: 0.32;
+    mix-blend-mode: screen;
+}
+
+#customGpsToggle, #themeToggle {
+    width: 46px;
+    height: 46px;
+    background: transparent;
+    color: var(--surface-text);
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    position: relative;
+    z-index: 1;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+#themeToggle {
+    border-left: 1px solid var(--surface-inner-border);
+}
+
+#customGpsToggle:hover,
+#themeToggle:hover {
+    background: rgba(255, 255, 255, 0.34);
+}
+
+#customGpsToggle:active,
+#themeToggle:active,
+#clearInputBtn:active {
+    transform: scale(0.96);
+}
+
+body.dark-theme #customGpsToggle:hover,
+body.dark-theme #themeToggle:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+#customGpsToggle svg {
+    transform: translate(1px, 1px) rotate(-10deg); 
+}
+
+@media (max-width: 380px) {
+    #mainNavigationContainer {
+        gap: 6px;
+        left: 12px;
+        right: 12px;
+    }
+
+    #searchBar {
+        padding-left: 40px;
+        padding-right: 38px;
+    }
+
+    .search-icon {
+        left: 13px;
+    }
+
+    #customGpsToggle, #themeToggle {
+        width: 42px;
+    }
+}
+
+/* ==========================================================================
+   CIEMNY MOTYW (DARK THEME)
+   ========================================================================== */
+body.dark-theme {
+    background-color: #1F2124; 
+    --surface: rgba(18, 19, 21, 0.62);
+    --surface-strong: rgba(18, 19, 21, 0.68);
+    --surface-border: rgba(255, 255, 255, 0.09);
+    --surface-inner-border: rgba(255, 255, 255, 0.055);
+    --surface-shadow: 0 18px 48px rgba(0, 0, 0, 0.54), 0 1px 4px rgba(255, 255, 255, 0.025) inset;
+    --surface-text: #e8eaed;
+    --surface-muted: #acadaf;
+}
+
+body.dark-theme #customGpsToggle,
+body.dark-theme #themeToggle {
+    color: var(--surface-text);
+}
+
+body.dark-theme #searchBar {
+    background-color: var(--surface);
+    color: var(--surface-text);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.004));
+}
+
+body.dark-theme #searchBar:focus {
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 0 0 1px rgba(120, 164, 255, 0.22), 0 18px 48px rgba(0, 0, 0, 0.54);
+    background-color: var(--surface-strong);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.014), rgba(255, 255, 255, 0.003));
+}
+
+body.dark-theme .input-wrapper::before,
+body.dark-theme #controlsSection::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.024), rgba(255, 255, 255, 0.006) 38%, rgba(255, 255, 255, 0.014));
+    opacity: 0.14;
+}
+
+body.dark-theme #searchBar::placeholder {
+    color: #9aa0a6;
+}
+
+body.dark-theme #clearInputBtn:hover {
+    color: var(--surface-text);
+    background: rgba(255, 255, 255, 0.14);
+}
+
+body.dark-theme #dropdown {
+    background-color: rgba(18, 19, 21, 0.62);
+    border-color: rgba(255, 255, 255, 0.045);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.48);
+    backdrop-filter: blur(10px) saturate(0.78) brightness(0.93);
+    -webkit-backdrop-filter: blur(10px) saturate(0.78) brightness(0.93);
+}
+
+body.dark-theme .dropdown-header {
+    background-color: rgba(18, 19, 21, 0.18);
+    color: #b8bdc3;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.028);
+}
+
+body.dark-theme .dropdown-item {
+    color: #e8eaed;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.024);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.36);
+}
+
+body.dark-theme .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.055);
+}
+
+body.dark-theme .dropdown-item span.city {
+    color: #b4bac1;
+}
